@@ -2,14 +2,15 @@ import os
 import re
 import traceback
 from datetime import datetime
+from re import Match
 from socket import socket
 from threading import Thread
-from typing import Tuple
+from typing import Tuple, Optional
 
 import settings
 from fango.http.request import HTTPRequest
 from fango.http.response import HTTPResponse
-from urls import URL_VIEW
+from urls import url_patterns
 
 class Worker(Thread):
 
@@ -48,10 +49,15 @@ class Worker(Thread):
             # HTTPリクエストをパースする
             request = self.parse_http_request(request_bytes)
 
-            # pathに対応するview関数があれば、関数を取得して呼び出しレスポン生成
-            if request.path in URL_VIEW:
-                view = URL_VIEW[request.path]
-                response = view(request)
+            # pathにマッチするurl_patternを探し見つかればviewからレスポンスを生成
+            for url_pattern in url_patterns:
+                match = url_pattern.match(request.path)
+                if match:
+                    request.params.update(match.groupdict())
+                    view = url_pattern.view
+                    response = view(request)
+                    break
+
             # pathがそれ以外の時は静的ファイルからレスポンスを生成する
             else:
                 try:
@@ -147,3 +153,9 @@ class Worker(Thread):
         response_header += f"Content-Type: {response.content_type}\r\n"
 
         return response_header
+
+    def url_match(self, url_pattern: str, path: str) -> Optional[Match]:
+        # URLパターンを正規表現パターンに変化する
+        # '/user/<user_id>/profile' => '/user/(?P<user_id>[^/]+)/profile'
+        re_pattern = re.sub(r"<(.+?)>", r"(?P<\1>[^/]+)", url_pattern)
+        return re.match(re_pattern, path)

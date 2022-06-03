@@ -63,3 +63,19 @@ def parameters(request: HTTPRequest) -> HTTPResponse:
         status_code = 200
 
         return HTTPResponse(body=body, content_type=content_type, status_code=status_code)
+
+def user_profile(request: HTTPRequest) -> HTTPResponse:
+    user_id = request.params["user_id"]
+    html = f"""\
+        <html>
+        <body>
+            <h1>プロフィール</h1>
+            <p>ID: {user_id}</p>
+        </body>
+        </html>
+    """
+    body = textwrap.dedent(html).encode()
+    content_type = "text/html; charset=UTF-8"
+    status_code = 200
+
+    return HTTPResponse(body=body, content_type=content_type, status_code=status_code)
