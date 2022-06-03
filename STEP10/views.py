@@ -7,7 +7,13 @@ from typing import Tuple, Optional
 from types import resolve_bases
 
 
-def now() -> Tuple[bytes, Optional[str], str]:
+def now(
+    method: str,
+    path: str,
+    http_version: str,
+    request_header: dict,
+    request_body: bytes
+) -> Tuple[bytes, Optional[str], str]:
     html = f"""\
         <html>
         <body>
@@ -54,6 +60,9 @@ def show_request(
 
 def parameters(
     method: str,
+    path: str,
+    http_version: str,
+    request_header: dict,
     request_body: bytes
 ) -> Tuple[bytes, Optional[str], str]:
     if method == "GET":

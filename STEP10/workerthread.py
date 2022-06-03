@@ -23,6 +23,13 @@ class WorkerThread(Thread):
         "gif": "image/gif",
     }
 
+    # pathとview関数の対応
+    URL_VIEW = {
+        "/now": views.now,
+        "show_request": views.show_request,
+        "parameters": views.parameters,
+    }
+
     def __init__(self, client_socket: socket, address: Tuple[str, int]):
         super().__init__()
 
@@ -45,21 +52,15 @@ class WorkerThread(Thread):
             response_body: bytes
             content_type: Optional[str]
             response_line: str
-            # pathが/nowの時は、現在時刻を表示するHTMLを作成する
-            if path == "/now":
-                response_body, content_type, response_line = views.now()
-
-            elif path == "/show_request":
-                response_body, content_type, response_line = views.show_request(
+            
+            # pathに対応するview関数があれば、関数を取得して呼び出しレスポン生成
+            if path in self.URL_VIEW:
+                view = self.URL_VIEW[path]
+                response_body, content_type, response_line = view(
                     method, path, http_version, request_header, request_body
                 )
-
-            elif path == "/parameters":
-                response_body, content_type, response_line = views.parameters(method, request_body)
             # pathがそれ以外の時は静的ファイルからレスポンスを生成する
             else:
-
-
                 try:
                     # ファイルからレスポンスボディを生成
                     response_body = self.get_static_file_content(path)
