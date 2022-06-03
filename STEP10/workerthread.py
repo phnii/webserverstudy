@@ -5,11 +5,10 @@ import traceback
 from datetime import datetime
 from socket import socket
 from threading import Thread
-from typing import Tuple, Optional
+from typing import Tuple
 from fango.http.request import HTTPRequest
 from fango.http.response import HTTPResponse
-
-import views
+from urls import URL_VIEW
 
 class WorkerThread(Thread):
     # 実行ファイルのあるディレクトリ
@@ -24,13 +23,6 @@ class WorkerThread(Thread):
         "png": "image/png",
         "jpg": "image/jpg",
         "gif": "image/gif",
-    }
-
-    # pathとview関数の対応
-    URL_VIEW = {
-        "/now": views.now,
-        "show_request": views.show_request,
-        "parameters": views.parameters,
     }
 
     # ステータスコードとステータスラインの対応
@@ -60,8 +52,8 @@ class WorkerThread(Thread):
             request = self.parse_http_request(request)
 
             # pathに対応するview関数があれば、関数を取得して呼び出しレスポン生成
-            if request.path in self.URL_VIEW:
-                view = self.URL_VIEW[request.path]
+            if request.path in URL_VIEW:
+                view = URL_VIEW[request.path]
                 response = view(request)
             # pathがそれ以外の時は静的ファイルからレスポンスを生成する
             else:
