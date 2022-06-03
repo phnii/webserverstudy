@@ -6,6 +6,7 @@ from re import Match
 from socket import socket
 from threading import Thread
 from typing import Tuple, Optional
+from fango.urls.resolver import URLResolver
 
 import settings
 from fango.http.request import HTTPRequest
@@ -49,16 +50,10 @@ class Worker(Thread):
             # HTTPリクエストをパースする
             request = self.parse_http_request(request_bytes)
 
-            # pathにマッチするurl_patternを探し見つかればviewからレスポンスを生成
-            for url_pattern in url_patterns:
-                match = url_pattern.match(request.path)
-                if match:
-                    request.params.update(match.groupdict())
-                    view = url_pattern.view
-                    response = view(request)
-                    break
+            view = URLResolver().resolve(request)
 
-            # pathがそれ以外の時は静的ファイルからレスポンスを生成する
+            if view:
+                response = view(request)
             else:
                 try:
                     # ファイルからレスポンスボディを生成
