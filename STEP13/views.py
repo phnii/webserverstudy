@@ -7,12 +7,12 @@ from typing import Tuple, Optional
 
 from fango.http.request import HTTPRequest
 from fango.http.response import HTTPResponse
+from fango.template.renderer import render
 
 
 def now(request: HTTPRequest) -> HTTPResponse:
-    with open("./templates/now.html") as f:
-        template = f.read()
-        html = template.format(now=datetime.now())
+    context = {"now": datetime.now()}
+    html = render("now.html", context)
     body = textwrap.dedent(html).encode()
     content_type = "text/html; charset=UTF-8"
 
