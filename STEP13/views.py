@@ -10,13 +10,9 @@ from fango.http.response import HTTPResponse
 
 
 def now(request: HTTPRequest) -> HTTPResponse:
-    html = f"""\
-        <html>
-        <body>
-            <h1>Now: {datetime.now()}</h1>
-        </body>
-        </html>
-    """
+    with open("./templates/now.html") as f:
+        template = f.read()
+        html = template.format(now=datetime.now())
     body = textwrap.dedent(html).encode()
     content_type = "text/html; charset=UTF-8"
 
