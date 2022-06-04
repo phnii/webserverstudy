@@ -1,4 +1,3 @@
-import os
 import re
 import traceback
 from datetime import datetime
@@ -8,7 +7,6 @@ from threading import Thread
 from typing import Tuple, Optional
 from fango.urls.resolver import URLResolver
 
-import settings
 from fango.http.request import HTTPRequest
 from fango.http.response import HTTPResponse
 from urls import url_patterns
@@ -53,6 +51,9 @@ class Worker(Thread):
             view = URLResolver().resolve(request)
 
             response = view(request)
+
+            if isinstance(response.body, str):
+                response.body = response.body.encode()
 
             response_line = self.build_response_line(response)
 
@@ -106,11 +107,13 @@ class Worker(Thread):
         if response.content_type is None:
             if "." in request.path:
                 ext = request.path.rsplit(".", maxsplit=1)[-1]
+                # 拡張子からMIME Typeを取得
+                # 知らない対応していない拡張子の場合はoctet-streamとする
+                response.content_type = self.MIME_TYPES.get(ext, "application/octet-stream")
             else:
-                ext = ""
-            # 拡張子からMIME Typeを取得
-            # 知らない対応していない拡張子の場合はoctet-streamとする
-            response.content_type = self.MIME_TYPES.get(ext, "application/octet-stream")
+                # pathに拡張子がない場合はhtml扱いとする
+                response.content_type = "text/html; charset=UTF-8"
+
         
         # レスポンスヘッダを生成
         response_header = ""
