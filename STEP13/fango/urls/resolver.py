@@ -1,11 +1,12 @@
-from typing import Callable, Optional
+from typing import Callable
 
 from fango.http.request import HTTPRequest
 from fango.http.response import HTTPResponse
+from fango.views.static import static
 from urls import url_patterns
 
 class URLResolver:
-    def resolve(self, request: HTTPRequest) -> Optional[Callable[[HTTPRequest], HTTPResponse]]:
+    def resolve(self, request: HTTPRequest) -> Callable[[HTTPRequest], HTTPResponse]:
         """
         URL解決を行う
         pathにマッチするurlパターンが存在した場合は対応するviewを返す
@@ -17,4 +18,4 @@ class URLResolver:
                 request.params.update(match.groupdict())
                 return url_pattern.view
 
-        return None
+        return static
