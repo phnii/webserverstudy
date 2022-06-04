@@ -1,9 +1,6 @@
-import textwrap
-from urllib.error import ContentTooShortError
 import urllib.parse
 from datetime import datetime
 from pprint import pformat
-from typing import Tuple, Optional
 
 from fango.http.request import HTTPRequest
 from fango.http.response import HTTPResponse

@@ -9,7 +9,6 @@ from fango.urls.resolver import URLResolver
 
 from fango.http.request import HTTPRequest
 from fango.http.response import HTTPResponse
-from urls import url_patterns
 
 class Worker(Thread):
 
